@@ -24,22 +24,22 @@ import static org.mockito.Mockito.*;
 class CourseServicesImplMockitoTest {
 
     @Mock
-    private ICourseRepository courseRepository; // Mock repository
+    private ICourseRepository courseRepository;
 
     @InjectMocks
-    private CourseServicesImpl courseServices; // Inject mock into service
+    private CourseServicesImpl courseServices;
 
     private Course testCourse;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this); // Initializes mocks
-        // Create a sample course to be used in the tests
+
         testCourse = new Course();
         testCourse.setNumCourse(1L);
         testCourse.setLevel(3);
-        testCourse.setTypeCourse(TypeCourse.INDIVIDUAL); // assuming you have this enum
-        testCourse.setSupport(Support.SKI); // assuming you have this enum
+        testCourse.setTypeCourse(TypeCourse.INDIVIDUAL);
+        testCourse.setSupport(Support.SKI);
         testCourse.setPrice(120.5f);
         testCourse.setTimeSlot(4);
     }
@@ -50,9 +50,9 @@ class CourseServicesImplMockitoTest {
         Course course2 = new Course();
         course2.setNumCourse(2L);
         course2.setLevel(2);
-        List<Course> mockCourseList = Arrays.asList(testCourse, course2); // Use Arrays.asList instead of List.of()
+        List<Course> mockCourseList = Arrays.asList(testCourse, course2);
 
-        when(courseRepository.findAll()).thenReturn(mockCourseList); // Mock repository behavior
+        when(courseRepository.findAll()).thenReturn(mockCourseList);
 
         // Act
         List<Course> retrievedCourses = courseServices.retrieveAllCourses();
@@ -67,35 +67,34 @@ class CourseServicesImplMockitoTest {
     @Test
     void testAddCourse() {
         // Arrange
-        when(courseRepository.save(testCourse)).thenReturn(testCourse); // Mock repository behavior for saving
-
+        when(courseRepository.save(testCourse)).thenReturn(testCourse);
         // Act
         Course savedCourse = courseServices.addCourse(testCourse);
 
         // Assert
         assertNotNull(savedCourse);
         assertEquals(1L, savedCourse.getNumCourse());
-        verify(courseRepository, times(1)).save(testCourse); // Ensure save() is called once
+        verify(courseRepository, times(1)).save(testCourse);
     }
 
     @Test
     void testUpdateCourse() {
         // Arrange
-        testCourse.setPrice(150.0f); // Change the price
-        when(courseRepository.save(testCourse)).thenReturn(testCourse); // Mock the save behavior
+        testCourse.setPrice(150.0f);
+        when(courseRepository.save(testCourse)).thenReturn(testCourse);
 
         // Act
         Course updatedCourse = courseServices.updateCourse(testCourse);
 
         // Assert
         assertEquals(150.0f, updatedCourse.getPrice());
-        verify(courseRepository, times(1)).save(testCourse); // Verify save was called
+        verify(courseRepository, times(1)).save(testCourse);
     }
 
     @Test
     void testRetrieveCourse() {
         // Arrange
-        when(courseRepository.findById(1L)).thenReturn(Optional.of(testCourse)); // Mock repository behavior
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(testCourse));
 
         // Act
         Course retrievedCourse = courseServices.retrieveCourse(1L);
@@ -104,20 +103,20 @@ class CourseServicesImplMockitoTest {
         assertNotNull(retrievedCourse);
         assertEquals(1L, retrievedCourse.getNumCourse());
         assertEquals(3, retrievedCourse.getLevel());
-        verify(courseRepository, times(1)).findById(1L); // Verify findById was called once
+        verify(courseRepository, times(1)).findById(1L);
     }
 
     @Test
     void testRetrieveCourse_NotFound() {
         // Arrange
-        when(courseRepository.findById(1L)).thenReturn(Optional.empty()); // Simulate course not found
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act
         Course retrievedCourse = courseServices.retrieveCourse(1L);
 
         // Assert
         assertNull(retrievedCourse); // Course should be null if not found
-        verify(courseRepository, times(1)).findById(1L); // Verify findById was called once
+        verify(courseRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -145,13 +144,32 @@ class CourseServicesImplMockitoTest {
         List<Course> result = courseServices.getCoursesByLevelAndRating(1, 4.0f); // Searching for level 1 and minRating 4.0
 
         // Assert
-        assertEquals(2, result.size()); // Expecting 2 courses that match criteria
-        assertTrue(result.contains(course1)); // course1 should be in the result
-        assertTrue(result.contains(course3)); // course3 should also be in the result
-        assertFalse(result.contains(course2)); // course2 should not be in the result
+        assertEquals(2, result.size());
+        assertTrue(result.contains(course1));
+        assertTrue(result.contains(course3));
+        assertFalse(result.contains(course2));
     }
 
 
+    @Test
+    public void testGetAdvancedFilteredCourses() {
+        // Arrange
+        Course course1 = new Course(1L, 1, TypeCourse.INDIVIDUAL, Support.SKI, 100f, 4, 4.5f);
+        Course course2 = new Course(2L, 1, TypeCourse.COLLECTIVE_CHILDREN, Support.SNOWBOARD, 150f, 5, 3.8f);
+        Course course3 = new Course(3L, 1, TypeCourse.INDIVIDUAL, Support.SKI, 120f, 4, 4.0f);
+
+        when(courseRepository.findAll()).thenReturn(Arrays.asList(course1, course2, course3));
+
+        // Act
+        List<Course> filteredCourses = courseServices.getAdvancedFilteredCourses(1, TypeCourse.INDIVIDUAL, Support.SKI, 4.0f);
+
+        // Assert
+        assertEquals(2, filteredCourses.size());
+        assertTrue(filteredCourses.contains(course1));
+        assertTrue(filteredCourses.contains(course3));
+        assertFalse(filteredCourses.contains(course2)); // Should not contain this one
+        verify(courseRepository, times(1)).findAll();
+    }
 
 
 

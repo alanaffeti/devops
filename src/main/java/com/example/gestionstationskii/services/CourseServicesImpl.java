@@ -1,6 +1,8 @@
 package com.example.gestionstationskii.services;
 
 import com.example.gestionstationskii.entities.Course;
+import com.example.gestionstationskii.entities.Support;
+import com.example.gestionstationskii.entities.TypeCourse;
 import com.example.gestionstationskii.repositories.ICourseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,16 @@ public class CourseServicesImpl implements  ICourseServices{
         return allCourses.stream()
                 .filter(course -> course.getLevel() == level
                         && course.getRating() >= minRating) // Filter by level and rating
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Course> getAdvancedFilteredCourses(int level, TypeCourse typeCourse, Support support, float minRating) {
+        return courseRepository.findAll().stream()
+                .filter(course -> course.getLevel() == level)
+                .filter(course -> course.getTypeCourse().equals(typeCourse))
+                .filter(course -> course.getSupport().equals(support))
+                .filter(course -> course.getRating() >= minRating)
                 .collect(Collectors.toList());
     }
 

@@ -20,6 +20,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @FieldDefaults(level=AccessLevel.PRIVATE)
 @Entity
+
 public class Course implements Serializable {
 
 	@Id
@@ -38,5 +39,15 @@ public class Course implements Serializable {
 	@JsonIgnore
 	@OneToMany(mappedBy= "course")
 	Set<Registration> registrations;
+
+	public Course(Long numCourse, int level, TypeCourse typeCourse, Support support, Float price, int timeSlot, float rating) {
+		this.numCourse = numCourse;
+		this.level = level;
+		this.typeCourse = typeCourse;
+		this.support = support;
+		this.price = price;
+		this.timeSlot = timeSlot;
+		this.rating = rating;
+	}
 
 }

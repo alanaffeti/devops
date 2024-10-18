@@ -7,6 +7,7 @@ import com.example.gestionstationskii.repositories.ICourseRepository;
 import com.example.gestionstationskii.services.InstructorServicesImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.HashSet;

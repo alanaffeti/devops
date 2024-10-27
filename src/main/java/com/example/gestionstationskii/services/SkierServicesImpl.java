@@ -95,4 +95,5 @@ public class SkierServicesImpl implements ISkierServices {
     public List<Skier> retrieveSkiersBySubscriptionType(TypeSubscription typeSubscription) {
         return skierRepository.findBySubscription_TypeSub(typeSubscription);
     }
+
 }

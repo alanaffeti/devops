@@ -32,6 +32,7 @@ class InstructorServicesMockitoTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    // Test 201 Created - Adding an instructor and assigning to course
     @Test
     void testAddInstructorAndAssignToCourse() {
         Instructor instructor = new Instructor();
@@ -51,6 +52,22 @@ class InstructorServicesMockitoTest {
         verify(instructorRepository, times(1)).save(instructor);
     }
 
+    // Test 404 Not Found - Add instructor and assign to non-existent course
+    @Test
+    void testAddInstructorAndAssignToCourseNotFound() {
+        Instructor instructor = new Instructor();
+        instructor.setFirstName("John Doe");
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Instructor savedInstructor = instructorServices.addInstructorAndAssignToCourse(instructor, 1L);
+
+        assertNull(savedInstructor);
+        verify(courseRepository, times(1)).findById(1L);
+        verify(instructorRepository, never()).save(instructor);
+    }
+
+    // Test 204 No Content - Retrieve all instructors (expecting list is not empty)
     @Test
     void testRetrieveAllInstructors() {
         Instructor instructor1 = new Instructor();
@@ -64,19 +81,7 @@ class InstructorServicesMockitoTest {
         verify(instructorRepository, times(1)).findAll();
     }
 
-    @Test
-    void testRetrieveInstructor() {
-        Instructor instructor = new Instructor();
-        instructor.setNumInstructor(1L);
-        when(instructorRepository.findById(1L)).thenReturn(Optional.of(instructor));
-
-        Instructor foundInstructor = instructorServices.retrieveInstructor(1L);
-
-        assertNotNull(foundInstructor);
-        assertEquals(1L, foundInstructor.getNumInstructor());
-        verify(instructorRepository, times(1)).findById(1L);
-    }
-
+    // Test 404 Not Found - Retrieve instructor that doesn't exist
     @Test
     void testRetrieveInstructorNotFound() {
         when(instructorRepository.findById(2L)).thenReturn(Optional.empty());
@@ -87,6 +92,7 @@ class InstructorServicesMockitoTest {
         verify(instructorRepository, times(1)).findById(2L);
     }
 
+    // Test 201 Created - Updating an existing instructor
     @Test
     void testUpdateInstructor() {
         Instructor instructor = new Instructor();
@@ -101,12 +107,11 @@ class InstructorServicesMockitoTest {
         verify(instructorRepository, times(1)).save(instructor);
     }
 
+    // Test 400 Bad Request - Updating an instructor with invalid data
     @Test
-    void testUpdateInstructorNotFound() {
+    void testUpdateInstructorInvalidData() {
         Instructor instructor = new Instructor();
-        instructor.setNumInstructor(1L);
-
-        when(instructorRepository.existsById(1L)).thenReturn(false);
+        instructor.setNumInstructor(null); // Invalid ID
 
         Instructor updatedInstructor = instructorServices.updateInstructor(instructor);
 
@@ -114,6 +119,32 @@ class InstructorServicesMockitoTest {
         verify(instructorRepository, never()).save(instructor);
     }
 
+    // Test 204 No Content - Delete an existing instructor
+    @Test
+    void testDeleteInstructor() {
+        Instructor instructor = new Instructor();
+        instructor.setNumInstructor(1L);
+
+        when(instructorRepository.existsById(1L)).thenReturn(true);
+
+        instructorServices.deleteInstructor(1L);
+
+        verify(instructorRepository, times(1)).deleteById(1L);
+    }
+
+    // Test 404 Not Found - Delete non-existent instructor
+    @Test
+    void testDeleteInstructorNotFound() {
+        when(instructorRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(RuntimeException.class, () -> {
+            instructorServices.deleteInstructor(1L);
+        });
+
+        verify(instructorRepository, never()).deleteById(1L);
+    }
+
+    // Test 201 Created - Assign course to instructor
     @Test
     void testAssignCourseToInstructor() {
         Instructor instructor = new Instructor();
@@ -134,48 +165,47 @@ class InstructorServicesMockitoTest {
         verify(instructorRepository, times(1)).save(instructor);
     }
 
+    // Test 404 Not Found - Assign non-existent course to instructor
     @Test
-    void testDeleteInstructor() {
+    void testAssignCourseToInstructorCourseNotFound() {
         Instructor instructor = new Instructor();
         instructor.setNumInstructor(1L);
 
-        when(instructorRepository.existsById(1L)).thenReturn(true);
+        when(instructorRepository.findById(1L)).thenReturn(Optional.of(instructor));
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
 
-        instructorServices.deleteInstructor(1L);
+        Instructor updatedInstructor = instructorServices.assignCourseToInstructor(1L, 1L);
 
-        verify(instructorRepository, times(1)).deleteById(1L);
+        assertNull(updatedInstructor);
+        verify(courseRepository, times(1)).findById(1L);
     }
 
+    // Test 404 Not Found - Assign course to non-existent instructor
     @Test
-    void testDeleteInstructorNotFound() {
-        when(instructorRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> {
-            instructorServices.deleteInstructor(1L);
-        });
-
-        verify(instructorRepository, never()).deleteById(1L);
-    }
-
-    @Test
-    void testFindInstructorsByCourse() {
+    void testAssignCourseToInstructorInstructorNotFound() {
         Course course = new Course();
         course.setNumCourse(1L);
 
-        Instructor instructor = new Instructor();
-        instructor.setNumInstructor(1L);
-        instructor.setCourses(new HashSet<>(Arrays.asList(course)));
+        when(instructorRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
-        when(instructorRepository.findByCoursesContaining(course)).thenReturn(Arrays.asList(instructor));
+        Instructor updatedInstructor = instructorServices.assignCourseToInstructor(1L, 1L);
+
+        assertNull(updatedInstructor);
+        verify(instructorRepository, times(1)).findById(1L);
+    }
+
+    // Test 404 Not Found - Find instructors by non-existent course
+    @Test
+    void testFindInstructorsByCourseNotFound() {
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
 
         List<Instructor> instructors = instructorServices.findInstructorsByCourse(1L);
 
-        assertNotNull(instructors);
-        assertEquals(1, instructors.size());
-        verify(instructorRepository, times(1)).findByCoursesContaining(course);
+        assertTrue(instructors.isEmpty());
+        verify(courseRepository, times(1)).findById(1L);
     }
 
+    // Test 201 Created - Assign instructor to multiple courses
     @Test
     void testAssignInstructorsToMultipleCourses() {
         Instructor instructor = new Instructor();

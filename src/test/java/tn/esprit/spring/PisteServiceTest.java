@@ -1,13 +1,14 @@
 package tn.esprit.spring;
 
-import com.example.gestionstationskii.entities.Piste;
-import com.example.gestionstationskii.repositories.IPisteRepository;
-import com.example.gestionstationskii.services.PisteServicesImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tn.esprit.spring.entities.Piste;
+import tn.esprit.spring.repositories.IPisteRepository;
+import tn.esprit.spring.services.PisteServicesImpl;
 
 import java.util.Arrays;
 import java.util.List;

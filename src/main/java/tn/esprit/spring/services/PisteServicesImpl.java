@@ -31,4 +31,15 @@ public class PisteServicesImpl implements  IPisteServices{
     public Piste retrievePiste(Long numPiste) {
         return pisteRepository.findById(numPiste).orElse(null);
     }
+
+    public Piste updatePiste(Long id, Piste newPisteData) {
+        return pisteRepository.findById(id)
+                .map(piste -> {
+                    piste.setNamePiste(newPisteData.getNamePiste());
+                    piste.setLength(newPisteData.getLength());
+                    piste.setSlope(newPisteData.getSlope());
+                    return pisteRepository.save(piste);
+                })
+                .orElse(null);
+    }
 }

@@ -54,7 +54,7 @@ class InstructorServicesImplTest {
     }
 
     @Test
-    void updateInstructor() {
+    void updateInstructor_InstructorExists() {
         Instructor instructor = new Instructor();
         instructor.setNumInstructor(1L);
         when(instructorRepository.existsById(1L)).thenReturn(true);
@@ -64,6 +64,18 @@ class InstructorServicesImplTest {
 
         assertEquals(instructor, result);
         verify(instructorRepository, times(1)).save(instructor);
+    }
+
+    @Test
+    void updateInstructor_InstructorDoesNotExist() {
+        Instructor instructor = new Instructor();
+        instructor.setNumInstructor(1L);
+        when(instructorRepository.existsById(1L)).thenReturn(false);
+
+        Instructor result = instructorServices.updateInstructor(instructor);
+
+        assertNull(result);
+        verify(instructorRepository, times(0)).save(instructor);
     }
 
     @Test
@@ -79,7 +91,7 @@ class InstructorServicesImplTest {
     }
 
     @Test
-    void addInstructorAndAssignToCourse() {
+    void addInstructorAndAssignToCourse_CourseExists() {
         Instructor instructor = new Instructor();
         Course course = new Course();
         course.setNumCourse(1L);
@@ -95,7 +107,18 @@ class InstructorServicesImplTest {
     }
 
     @Test
-    void findInstructorsByCourse() {
+    void addInstructorAndAssignToCourse_CourseDoesNotExist() {
+        Instructor instructor = new Instructor();
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Instructor result = instructorServices.addInstructorAndAssignToCourse(instructor, 1L);
+
+        assertNull(result);
+        verify(instructorRepository, times(0)).save(instructor);
+    }
+
+    @Test
+    void findInstructorsByCourse_CourseExists() {
         Course course = new Course();
         course.setNumCourse(1L);
         List<Instructor> instructors = Arrays.asList(new Instructor(), new Instructor());
@@ -110,7 +133,18 @@ class InstructorServicesImplTest {
     }
 
     @Test
-    void deleteInstructor() {
+    void findInstructorsByCourse_CourseDoesNotExist() {
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        List<Instructor> result = instructorServices.findInstructorsByCourse(1L);
+
+        assertTrue(result.isEmpty());
+        verify(courseRepository, times(1)).findById(1L);
+        verify(instructorRepository, times(0)).findByCoursesContaining(any());
+    }
+
+    @Test
+    void deleteInstructor_InstructorExists() {
         Long instructorId = 1L;
         when(instructorRepository.existsById(instructorId)).thenReturn(true);
 
@@ -120,7 +154,16 @@ class InstructorServicesImplTest {
     }
 
     @Test
-    void assignCourseToInstructor() {
+    void deleteInstructor_InstructorDoesNotExist() {
+        Long instructorId = 1L;
+        when(instructorRepository.existsById(instructorId)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> instructorServices.deleteInstructor(instructorId));
+        verify(instructorRepository, times(0)).deleteById(instructorId);
+    }
+
+    @Test
+    void assignCourseToInstructor_BothExist() {
         Instructor instructor = new Instructor();
         instructor.setNumInstructor(1L);
         Course course = new Course();
@@ -135,5 +178,30 @@ class InstructorServicesImplTest {
         assertTrue(result.getCourses().contains(course));
         verify(courseRepository, times(1)).findById(2L);
         verify(instructorRepository, times(1)).save(instructor);
+    }
+
+    @Test
+    void assignCourseToInstructor_InstructorDoesNotExist() {
+        when(instructorRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Instructor result = instructorServices.assignCourseToInstructor(1L, 2L);
+
+        assertNull(result);
+        verify(courseRepository, times(0)).findById(2L);
+        verify(instructorRepository, times(0)).save(any());
+    }
+
+    @Test
+    void assignCourseToInstructor_CourseDoesNotExist() {
+        Instructor instructor = new Instructor();
+        instructor.setNumInstructor(1L);
+        when(instructorRepository.findById(1L)).thenReturn(Optional.of(instructor));
+        when(courseRepository.findById(2L)).thenReturn(Optional.empty());
+
+        Instructor result = instructorServices.assignCourseToInstructor(1L, 2L);
+
+        assertNull(result);
+        verify(courseRepository, times(1)).findById(2L);
+        verify(instructorRepository, times(0)).save(any());
     }
 }

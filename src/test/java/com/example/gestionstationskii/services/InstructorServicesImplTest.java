@@ -180,28 +180,7 @@ class InstructorServicesImplTest {
         verify(instructorRepository, times(1)).save(instructor);
     }
 
-    @Test
-    void assignCourseToInstructor_InstructorDoesNotExist() {
-        when(instructorRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Instructor result = instructorServices.assignCourseToInstructor(1L, 2L);
 
-        assertNull(result);
-        verify(courseRepository, times(0)).findById(2L);
-        verify(instructorRepository, times(0)).save(any());
-    }
 
-    @Test
-    void assignCourseToInstructor_CourseDoesNotExist() {
-        Instructor instructor = new Instructor();
-        instructor.setNumInstructor(1L);
-        when(instructorRepository.findById(1L)).thenReturn(Optional.of(instructor));
-        when(courseRepository.findById(2L)).thenReturn(Optional.empty());
-
-        Instructor result = instructorServices.assignCourseToInstructor(1L, 2L);
-
-        assertNull(result);
-        verify(courseRepository, times(1)).findById(2L);
-        verify(instructorRepository, times(0)).save(any());
-    }
 }

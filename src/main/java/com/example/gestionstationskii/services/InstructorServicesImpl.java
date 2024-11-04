@@ -65,7 +65,7 @@ public class InstructorServicesImpl implements IInstructorServices {
         if (instructorRepository.existsById(numInstructor)) {
             instructorRepository.deleteById(numInstructor);
         } else {
-            throw new RuntimeException("Instructor not found");
+            throw new IllegalArgumentException("Instructor with ID " + numInstructor + " not found");
         }
     }
 

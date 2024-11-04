@@ -19,12 +19,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level=AccessLevel.PRIVATE)
 @Entity
 public class Instructor implements Serializable {
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	Long numInstructor;
-	String firstName;
-	String lastName;
-	LocalDate dateOfHire;
-	@OneToMany
-	Set<Course> courses;
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    Long numInstructor;
+    String firstName;
+    String lastName;
+    LocalDate dateOfHire;
+    @OneToMany
+    Set<Course> courses;
 }

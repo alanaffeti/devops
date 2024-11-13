@@ -1,0 +1,114 @@
+package com.example.gestionstationskii;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import com.example.gestionstationskii.controllers.SubscriptionRestController;
+import com.example.gestionstationskii.entities.Subscription;
+import com.example.gestionstationskii.entities.TypeSubscription;
+import com.example.gestionstationskii.services.ISubscriptionServices;
+
+import java.time.LocalDate;
+import java.util.*;
+
+@ExtendWith(MockitoExtension.class)
+public class SubscriptionRestControllerTest {
+
+    @Mock
+    private ISubscriptionServices subscriptionServices;
+
+    @InjectMocks
+    private SubscriptionRestController subscriptionRestController;
+
+    @Test
+    public void testAddSubscription() {
+        Subscription subscription = new Subscription();
+        subscription.setStartDate(LocalDate.now());
+        subscription.setEndDate(LocalDate.now().plusDays(365));
+        subscription.setPrice(200.0f);
+        subscription.setTypeSub(TypeSubscription.ANNUAL);
+
+        when(subscriptionServices.addSubscription(subscription)).thenReturn(subscription);
+
+        Subscription result = subscriptionRestController.addSubscription(subscription);
+
+        assertNotNull(result);
+        verify(subscriptionServices).addSubscription(subscription);
+    }
+
+    @Test
+    public void testGetById() {
+        Long testSubId = 1L;
+        Subscription testSubscription = new Subscription();
+        testSubscription.setNumSub(testSubId);
+        testSubscription.setStartDate(LocalDate.now());
+        testSubscription.setEndDate(LocalDate.now().plusDays(30));
+        testSubscription.setPrice(100.0f);
+        testSubscription.setTypeSub(TypeSubscription.ANNUAL);
+
+        when(subscriptionServices.retrieveSubscriptionById(testSubId)).thenReturn(testSubscription);
+
+        Subscription result = subscriptionRestController.getById(testSubId);
+
+        assertNotNull(result);
+        assertEquals(testSubId, result.getNumSub());
+        verify(subscriptionServices).retrieveSubscriptionById(testSubId);
+    }
+
+    @Test
+    public void testGetSubscriptionsByType() {
+        Set<Subscription> subscriptions = new HashSet<>();
+        subscriptions.add(new Subscription());
+        TypeSubscription type = TypeSubscription.ANNUAL;
+
+        when(subscriptionServices.getSubscriptionByType(type)).thenReturn(subscriptions);
+
+        Set<Subscription> results = subscriptionRestController.getSubscriptionsByType(type);
+
+        assertNotNull(results);
+        assertFalse(results.isEmpty());
+        verify(subscriptionServices).getSubscriptionByType(type);
+    }
+
+    @Test
+    public void testUpdateSubscription() {
+        Subscription subscription = new Subscription();
+        subscription.setNumSub(1L);
+        subscription.setStartDate(LocalDate.now());
+        subscription.setEndDate(LocalDate.now().plusDays(365));
+        subscription.setPrice(300.0f);
+        subscription.setTypeSub(TypeSubscription.ANNUAL);
+
+        when(subscriptionServices.updateSubscription(subscription)).thenReturn(subscription);
+
+        Subscription result = subscriptionRestController.updateSubscription(subscription);
+
+        assertNotNull(result);
+        verify(subscriptionServices).updateSubscription(subscription);
+    }
+
+    @Test
+    public void testGetSubscriptionsByDates() {
+        List<Subscription> subscriptions = new ArrayList<>();
+        LocalDate startDate = LocalDate.now().minusDays(10);
+        LocalDate endDate = LocalDate.now();
+
+        subscriptions.add(new Subscription());
+
+        when(subscriptionServices.retrieveSubscriptionsByDates(startDate, endDate)).thenReturn(subscriptions);
+
+        List<Subscription> results = subscriptionRestController.getSubscriptionsByDates(startDate, endDate);
+
+        assertNotNull(results);
+        assertFalse(results.isEmpty());
+        verify(subscriptionServices).retrieveSubscriptionsByDates(startDate, endDate);
+    }
+}
+

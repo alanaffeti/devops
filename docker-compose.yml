@@ -16,7 +16,7 @@ services:
       - db_data:/var/lib/mysql
 
   app:
-    image: fedi/tp-ski:1.0.0
+    image: fedibenmansour/tp-ski:1.0.0
     container_name: tp-ski-app
     restart: on-failure
     ports:

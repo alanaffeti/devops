@@ -2,6 +2,7 @@ package tn.esprit.spring.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.entities.Color;
 import tn.esprit.spring.entities.Piste;
 import tn.esprit.spring.repositories.IPisteRepository;
 
@@ -41,5 +42,17 @@ public class PisteServicesImpl implements  IPisteServices{
                     return pisteRepository.save(piste);
                 })
                 .orElse(null);
+    }
+    public List<Piste> retrievePistesByColor(Color color) {
+        return pisteRepository.findByColor(color);
+    }
+
+
+    public double calculateAverageSlope() {
+        List<Piste> pistes = pisteRepository.findAll();
+        return pistes.stream()
+                .mapToInt(Piste::getSlope)
+                .average()
+                .orElse(0.0);
     }
 }

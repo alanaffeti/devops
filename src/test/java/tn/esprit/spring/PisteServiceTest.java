@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import tn.esprit.spring.entities.Color;
 import tn.esprit.spring.entities.Piste;
 import tn.esprit.spring.repositories.IPisteRepository;
 import tn.esprit.spring.services.PisteServicesImpl;
@@ -113,4 +114,58 @@ class PisteServiceTest {
         // Vérifie que la méthode findById a bien été appelée
         verify(pisteRepository, times(1)).findById(1L);
     }
+    @Test
+    void testRetrievePistesByColor() {
+        // Arrange
+        Piste piste1 = new Piste();
+        piste1.setNumPiste(1L);
+        piste1.setNamePiste("Blue Piste");
+        piste1.setColor(Color.BLUE);
+        piste1.setLength(400);
+        piste1.setSlope(20);
+
+        Piste piste2 = new Piste();
+        piste2.setNumPiste(2L);
+        piste2.setNamePiste("Green Piste");
+        piste2.setColor(Color.GREEN);
+        piste2.setLength(300);
+        piste2.setSlope(15);
+
+        List<Piste> pistesByColor = Arrays.asList(piste1);
+        when(pisteRepository.findByColor(Color.BLUE)).thenReturn(pistesByColor);
+
+        // Act
+        List<Piste> result = pisteServices.retrievePistesByColor(Color.BLUE);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Blue Piste", result.get(0).getNamePiste());
+        verify(pisteRepository, times(1)).findByColor(Color.BLUE);
+    }
+
+    @Test
+    void testCalculateAverageSlope() {
+        // Arrange
+        Piste piste1 = new Piste();
+        piste1.setNumPiste(1L);
+        piste1.setNamePiste("Piste A");
+        piste1.setSlope(20);
+
+        Piste piste2 = new Piste();
+        piste2.setNumPiste(2L);
+        piste2.setNamePiste("Piste B");
+        piste2.setSlope(40);
+
+        List<Piste> pistes = Arrays.asList(piste1, piste2);
+        when(pisteRepository.findAll()).thenReturn(pistes);
+
+        // Act
+        double averageSlope = pisteServices.calculateAverageSlope();
+
+        // Assert
+        assertEquals(30.0, averageSlope);
+        verify(pisteRepository, times(1)).findAll();
+    }
+
 }

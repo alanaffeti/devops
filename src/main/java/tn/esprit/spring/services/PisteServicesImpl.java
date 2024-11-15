@@ -43,11 +43,12 @@ public class PisteServicesImpl implements  IPisteServices{
                 })
                 .orElse(null);
     }
+    @Override
     public List<Piste> retrievePistesByColor(Color color) {
         return pisteRepository.findByColor(color);
     }
 
-
+    @Override
     public double calculateAverageSlope() {
         List<Piste> pistes = pisteRepository.findAll();
         return pistes.stream()

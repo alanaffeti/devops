@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.entities.Color;
 import tn.esprit.spring.entities.Piste;
 import tn.esprit.spring.services.IPisteServices;
 
@@ -39,6 +40,17 @@ public class PisteRestController {
     public void deleteById(@PathVariable("id-piste") Long numPiste){
         pisteServices.removePiste(numPiste);
     }
-    
+
+    @Operation(description = "Récupérer les pistes par couleur")
+    @GetMapping("/by-color/{color}")
+    public List<Piste> getPistesByColor(@PathVariable Color color) {
+        return pisteServices.retrievePistesByColor(color);
+    }
+
+    @Operation(description = "Calculer la pente moyenne de toutes les pistes")
+    @GetMapping("/average-slope")
+    public double getAverageSlope() {
+        return pisteServices.calculateAverageSlope();
+    }
 
 }
